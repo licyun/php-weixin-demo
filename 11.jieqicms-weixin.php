@@ -84,7 +84,7 @@ class wechatCallbackapiTest {
             <Articles>%s</Articles>
         </xml>";
         //sql语句
-        $sql = "SELECT articleid, articlename, intro  FROM `jieqi_article_article` WHERE `articlename` = ?  LIMIT 0 ,5";
+        $sql = "SELECT articleid, articlename, intro  FROM `jieqi_article_article` WHERE `articlename` LIKE CONCAT('%',?,'%')  LIMIT 0 ,5";
         //mysql连接信息
         $servername  = '127.0.0.1';     // mysql服务器主机地址
         $username  = 'root';           // mysql用户名
