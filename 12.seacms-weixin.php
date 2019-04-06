@@ -66,10 +66,20 @@ class wechatCallbackapiTest {
         $username  = 'root';           // mysql用户名
         $password  = 'password';        // mysql用户名密码
         $dbname  = 'root';           // mysql 数据库名
+        //连接本地的 Redis 服务
+        $redis = new Redis();
+        $redis->connect('127.0.0.1', 6379);
         //结果数组
         $arrdata = array();
         $sqlnum = 1;
-
+        //判断redis是否存在
+        if( $redis->exists($keyword)){
+            // 获取存储的数据并输出
+            $strdata = $redis->get($keyword);
+            // var_dump($strdata);
+            $arrdata = explode("--", $strdata);
+            $sqlnum = 1;
+        }else{
             // 创建连接
             $conn = new mysqli($servername, $username, $password, $dbname);
             // 检测连接
@@ -100,7 +110,12 @@ class wechatCallbackapiTest {
             }else{
                 while ($stmt->fetch()) 
                 {
-                    $arrdata = array($id, $name, $pic, $dis);
+                    //将参数转换为字符串数据
+                    $strdata = $id."--".$name."--".$pic."--".$dis;
+                    $arrdata = explode("--", $strdata);
+                    echo $redis_str;
+                    //存储数据到列表中
+                    $redis->set($keyword, $strdata, 60*60*2);
                 }
             }
             //关闭处理连接
@@ -144,7 +159,7 @@ class wechatCallbackapiTest {
         //添加链接
         $Url = $baseUrl."/movie/id".$arr[0].".html";
         //添加图片
-        $PicUrl ="https://seacms.com/".$arr[2];
+        $PicUrl ="https://seacms.net/".$arr[2];
         $item_str .= sprintf($itemTpl, $Title, $Description, $PicUrl, $Url);
         $result = sprintf($xmlTpl, $object->FromUserName, $object->ToUserName, time(), $sqlnum, $item_str);
         return $result;
@@ -204,7 +219,7 @@ class wechatCallbackapiTest {
         switch ($object->Event)
         {
             case "subscribe":
-                $content = "欢迎关注微信公众号";
+                $content = "欢迎关注官方微信公众号";
                 break;
             case "unsubscribe":
                 $content = "取消关注";
